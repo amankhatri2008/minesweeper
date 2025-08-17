@@ -1,30 +1,37 @@
-package com.gic.minesweeper;
+package com.gic.minesweeper.service.imp;
 
 import com.gic.minesweeper.config.MinesweeperProperties;
+import com.gic.minesweeper.service.BoardService;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.Random;
 
 @Component
-public class Board {
+public class BoardServiceImpl implements BoardService {
 
     private static final int[][] DIRECTIONS = {
             {-1, -1}, {-1, 0}, {-1, 1},
             {0, -1}, {0, 1},
             {1, -1}, {1, 0}, {1, 1}
     };
-    public final MinesweeperProperties props;
-    public int size;
-    public int numOfMines;
-    public char[][] mineField;
-    public boolean[][] revealed;
+    private final MinesweeperProperties props;
+    private int size;
+    private int numOfMines;
+    private char[][] mineField;
+    private boolean[][] revealed;
 
 
-    public Board(MinesweeperProperties props) {
+    public BoardServiceImpl(MinesweeperProperties props) {
         this.props = props;
     }
 
+    public void resetBoard(){
+        this.size = 0;
+        this.numOfMines = 0;
+        this.mineField = null;
+        this.revealed = null;
+    }
     public void initializeBoard(int size, int numOfMines) {
         this.size = size;
         this.numOfMines = numOfMines;
@@ -131,5 +138,38 @@ public class Board {
             }
             System.out.println();
         }
+    }
+
+
+    public int getSize() {
+        return size;
+    }
+
+    public void setSize(int size) {
+        this.size = size;
+    }
+
+    public int getNumOfMines() {
+        return numOfMines;
+    }
+
+    public void setNumOfMines(int numOfMines) {
+        this.numOfMines = numOfMines;
+    }
+
+    public char[][] getMineField() {
+        return mineField;
+    }
+
+    public void setMineField(char[][] mineField) {
+        this.mineField = mineField;
+    }
+
+    public boolean[][] getRevealed() {
+        return revealed;
+    }
+
+    public void setRevealed(boolean[][] revealed) {
+        this.revealed = revealed;
     }
 }

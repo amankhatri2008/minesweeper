@@ -1,16 +1,18 @@
-package com.gic.minesweeper;
+package com.gic.minesweeper.service.imp;
 
+import com.gic.minesweeper.service.GameInitiateService;
+import com.gic.minesweeper.service.PlayGameService;
 import org.springframework.stereotype.Component;
 
 import java.util.Scanner;
 
 @Component
-public class GameInitiate {
+public class GameInitiateServiceImpl implements GameInitiateService {
 
-    private final PlayGame playGame;
+    private final PlayGameService playGameService;
 
-    public GameInitiate(PlayGame playGame) {
-        this.playGame = playGame;
+    public GameInitiateServiceImpl(PlayGameService playGameService) {
+        this.playGameService = playGameService;
     }
 
     public void start() {
@@ -18,7 +20,7 @@ public class GameInitiate {
         Scanner scanner = new Scanner(System.in);
 
         while (playAgain) {
-            playGame.start();
+            playGameService.start();
             System.out.println("Press ENTER to play again, or type 'q' to quit...");
             String input = scanner.nextLine();
 

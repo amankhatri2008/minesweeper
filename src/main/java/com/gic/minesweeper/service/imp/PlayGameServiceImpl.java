@@ -1,21 +1,23 @@
-package com.gic.minesweeper;
+package com.gic.minesweeper.service.imp;
 
 import com.gic.minesweeper.config.MinesweeperProperties;
+import com.gic.minesweeper.service.BoardService;
+import com.gic.minesweeper.service.PlayGameService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Scanner;
 
 @Component
-public class PlayGame {
+public class PlayGameServiceImpl implements PlayGameService {
 
-    private final Board board;
+    private final BoardService boardService;
     private final MinesweeperProperties props;
     private Scanner scanner;
 
     @Autowired
-    public PlayGame(Board board, MinesweeperProperties props) {
-        this.board = board;
+    public PlayGameServiceImpl(BoardService boardService, MinesweeperProperties props) {
+        this.boardService = boardService;
         this.props = props;
         this.scanner = new Scanner(System.in);
     }
@@ -26,6 +28,7 @@ public class PlayGame {
     }
 
     public void start() {
+        boardService.resetBoard();
         System.out.println("Welcome to Minesweeper!");
 
 
@@ -40,23 +43,23 @@ public class PlayGame {
             mines = getMinesFromUserInput(maxMines, mines);
         }
 
-        board.initializeBoard(size, mines);
+        boardService.initializeBoard(size, mines);
 
         boolean gameOver = false;
         while (!gameOver) {
-            board.printBoard(false);
+            boardService.printBoard(false);
 
             String move = getValidMove(size);
 
             int row = move.toUpperCase().charAt(0) - 'A';
             int col = Integer.parseInt(move.substring(1)) - 1;
 
-            if (!board.revealCell(row, col)) {
+            if (!boardService.revealCell(row, col)) {
                 System.out.println("Oh no, you detonated a mine! Game over.");
-                board.printBoard(true);
+                boardService.printBoard(true);
                 gameOver = true;
-            } else if (board.allSafeCellsRevealed()) {
-                board.printBoard(true);
+            } else if (boardService.allSafeCellsRevealed()) {
+                boardService.printBoard(true);
                 System.out.println("Congratulations, you have won the game!");
                 gameOver = true;
             }

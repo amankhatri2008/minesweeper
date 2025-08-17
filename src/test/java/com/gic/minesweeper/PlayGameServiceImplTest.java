@@ -1,6 +1,8 @@
 package com.gic.minesweeper;
 
 import com.gic.minesweeper.config.MinesweeperProperties;
+import com.gic.minesweeper.service.imp.BoardServiceImpl;
+import com.gic.minesweeper.service.imp.PlayGameServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -15,15 +17,15 @@ import java.util.Scanner;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
-public class PlayGameTest {
+public class PlayGameServiceImplTest {
 
     private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
     @Autowired
-    private PlayGame playGame;
+    private PlayGameServiceImpl playGameServiceImpl;
 
 
     @Mock
-    private Board board;
+    private BoardServiceImpl boardServiceImpl;
 
     @Mock
     private MinesweeperProperties props;
@@ -45,9 +47,9 @@ public class PlayGameTest {
 
         String input = "2\n0\nA1\nA2\nB1\nB2\n";
         Scanner scanner = new Scanner(input);
-        playGame.setScanner(scanner);
+        playGameServiceImpl.setScanner(scanner);
 
-        playGame.start();
+        playGameServiceImpl.start();
 
         String output = getOutput();
         assertTrue(output.contains("Congratulations, you have won the game!"));
@@ -58,9 +60,9 @@ public class PlayGameTest {
 
         String input = "2\n1\nA1\nB1\nA2\nB2\n";
         Scanner scanner = new Scanner(input);
-        playGame.setScanner(scanner);
+        playGameServiceImpl.setScanner(scanner);
 
-        playGame.start();
+        playGameServiceImpl.start();
 
         String output = getOutput();
         assertTrue(output.contains("Oh no, you detonated a mine!"));
@@ -70,8 +72,8 @@ public class PlayGameTest {
     void getValidMove_withCorrectInput_shouldReturnMove() {
         String simulatedInput = "A1\n";
         System.setIn(new ByteArrayInputStream(simulatedInput.getBytes()));
-        playGame.setScanner(new Scanner(System.in));
-        String result = playGame.getValidMove(4);
+        playGameServiceImpl.setScanner(new Scanner(System.in));
+        String result = playGameServiceImpl.getValidMove(4);
         assertTrue(result.equalsIgnoreCase("A1"));
     }
 
@@ -79,8 +81,8 @@ public class PlayGameTest {
     void getValidMove_withInvalidThenCorrectInput_shouldHandleError() {
         String simulatedInput = "Z1\nA1\n";
         System.setIn(new ByteArrayInputStream(simulatedInput.getBytes()));
-        playGame.setScanner(new Scanner(System.in));
-        String result = playGame.getValidMove(4);
+        playGameServiceImpl.setScanner(new Scanner(System.in));
+        String result = playGameServiceImpl.getValidMove(4);
         assertTrue(outContent.toString().contains("Invalid row!"));
         assertTrue(result.equalsIgnoreCase("A1"));
     }
@@ -90,9 +92,9 @@ public class PlayGameTest {
 
         String input = "abc\n3\n0\nA1\n"; //
         Scanner scanner = new Scanner(input);
-        playGame.setScanner(scanner);
+        playGameServiceImpl.setScanner(scanner);
 
-        playGame.start();
+        playGameServiceImpl.start();
 
         String output = getOutput();
         assertTrue(output.contains("Invalid input! Enter a numeric value."));

@@ -1,5 +1,7 @@
 package com.gic.minesweeper;
 
+import com.gic.minesweeper.service.imp.GameInitiateServiceImpl;
+import com.gic.minesweeper.service.imp.PlayGameServiceImpl;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,15 +21,15 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-public class GameInitiateTest {
+public class GameInitiateServiceImplTest {
 
     private final InputStream originalIn = System.in;
     private final PrintStream originalOut = System.out;
     private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
     @Mock
-    private PlayGame playGame;
+    private PlayGameServiceImpl playGameServiceImpl;
     @InjectMocks
-    private GameInitiate gameInitiate;
+    private GameInitiateServiceImpl gameInitiateServiceImpl;
 
     @BeforeEach
     public void setUp() {
@@ -46,9 +48,9 @@ public class GameInitiateTest {
         ByteArrayInputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes(StandardCharsets.UTF_8));
         System.setIn(inputStream);
 
-        gameInitiate.start();
+        gameInitiateServiceImpl.start();
 
-        verify(playGame, times(1)).start();
+        verify(playGameServiceImpl, times(1)).start();
         String output = outputStreamCaptor.toString(StandardCharsets.UTF_8);
         assertTrue(output.contains("Thanks for playing Minesweeper!"));
     }
@@ -59,9 +61,9 @@ public class GameInitiateTest {
         ByteArrayInputStream inputStream = new ByteArrayInputStream(simulatedInput.getBytes(StandardCharsets.UTF_8));
         System.setIn(inputStream);
 
-        gameInitiate.start();
+        gameInitiateServiceImpl.start();
 
-        verify(playGame, times(2)).start();
+        verify(playGameServiceImpl, times(2)).start();
         String output = outputStreamCaptor.toString(StandardCharsets.UTF_8);
         assertTrue(output.contains("Thanks for playing Minesweeper!"));
     }
