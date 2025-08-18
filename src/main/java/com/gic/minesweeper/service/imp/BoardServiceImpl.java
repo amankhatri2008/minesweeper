@@ -1,10 +1,11 @@
 package com.gic.minesweeper.service.imp;
 
 import com.gic.minesweeper.config.MinesweeperProperties;
+import com.gic.minesweeper.dto.Cell;
+import com.gic.minesweeper.dto.CellState;
 import com.gic.minesweeper.service.BoardService;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
 import java.util.Random;
 
 @Component
@@ -18,55 +19,59 @@ public class BoardServiceImpl implements BoardService {
     private final MinesweeperProperties props;
     private int size;
     private int numOfMines;
-    private char[][] mineField;
-    private boolean[][] revealed;
+    private Cell[][] mineField;
 
 
     public BoardServiceImpl(MinesweeperProperties props) {
         this.props = props;
     }
 
-    public void resetBoard(){
+    public void resetBoard() {
         this.size = 0;
         this.numOfMines = 0;
         this.mineField = null;
-        this.revealed = null;
+
     }
+
     public void initializeBoard(int size, int numOfMines) {
         this.size = size;
         this.numOfMines = numOfMines;
-        this.mineField = new char[size][size];
-        this.revealed = new boolean[size][size];
+        this.mineField = new Cell[size][size];
+
         constructBaseBoard();
     }
 
     private void constructBaseBoard() {
-        for (int i = 0; i < size; i++) {
-            Arrays.fill(mineField[i], props.getBlank());
+        for (int r = 0; r < size; r++) {
+            for (int c = 0; c < size; c++) {
+                mineField[r][c] = new Cell(r, c, false);
+            }
         }
         placeMinesAtRandomPositions();
     }
 
     private void placeMinesAtRandomPositions() {
+
+
         Random rand = new Random();
         int placed = 0;
         while (placed < numOfMines) {
             int randomR = rand.nextInt(size);
             int randomC = rand.nextInt(size);
-            if (mineField[randomR][randomC] != props.getBomb()) {
-                mineField[randomR][randomC] = props.getBomb();
+            if (!mineField[randomR][randomC].isBomb()) {
+                mineField[randomR][randomC].setBomb(true);
                 placed++;
             }
         }
     }
 
     public boolean revealCell(int row, int col) {
-        if (row < 0 || row >= size || col < 0 || col >= size || revealed[row][col]) {
+        if (row < 0 || row >= size || col < 0 || col >= size || mineField[row][col].getState() == CellState.REVEALED) {
             return true;
         }
-        revealed[row][col] = true;
+        mineField[row][col].setState(CellState.REVEALED);
 
-        if (mineField[row][col] == props.getBomb()) {
+        if (mineField[row][col].isBomb()) {
             return false;
         }
 
@@ -84,7 +89,7 @@ public class BoardServiceImpl implements BoardService {
         for (int[] dir : DIRECTIONS) {
             int newR = row + dir[0];
             int newC = col + dir[1];
-            if (newR >= 0 && newR < size && newC >= 0 && newC < size && mineField[newR][newC] == props.getBomb()) {
+            if (newR >= 0 && newR < size && newC >= 0 && newC < size && mineField[newR][newC].isBomb()) {
                 count++;
             }
         }
@@ -94,7 +99,7 @@ public class BoardServiceImpl implements BoardService {
     public boolean allSafeCellsRevealed() {
         for (int row = 0; row < size; row++) {
             for (int col = 0; col < size; col++) {
-                if (mineField[row][col] != props.getBomb() && !revealed[row][col]) {
+                if (!mineField[row][col].isBomb() && mineField[row][col].getState() == CellState.HIDDEN) {
                     return false;
                 }
             }
@@ -115,18 +120,16 @@ public class BoardServiceImpl implements BoardService {
             for (int Col = 0; Col < size; Col++) {
 
                 if (showAll) {
-                    if (revealed[row][Col]) {
-                        if (mineField[row][Col] == props.getBomb()) {
-                            System.out.print(props.getBomb() + " ");
-                        } else {
-                            System.out.print(countAdjacentMines(row, Col) + " ");
-                        }
+
+                    if (mineField[row][Col].isBomb()) {
+                        System.out.print(props.getBomb() + " ");
                     } else {
-                        System.out.print(mineField[row][Col] + " ");
+                        System.out.print(countAdjacentMines(row, Col) + " ");
                     }
+
                 } else {
-                    if (revealed[row][Col]) {
-                        if (mineField[row][Col] == props.getBomb()) {
+                    if (mineField[row][Col].getState() == CellState.REVEALED) {
+                        if (mineField[row][Col].isBomb()) {
                             System.out.print(props.getBomb() + " ");
                         } else {
                             System.out.print(countAdjacentMines(row, Col) + " ");
@@ -157,19 +160,14 @@ public class BoardServiceImpl implements BoardService {
         this.numOfMines = numOfMines;
     }
 
-    public char[][] getMineField() {
+    public Cell[][] getMineField() {
         return mineField;
     }
 
-    public void setMineField(char[][] mineField) {
+    public void setMineField(Cell[][] mineField) {
         this.mineField = mineField;
     }
 
-    public boolean[][] getRevealed() {
-        return revealed;
-    }
 
-    public void setRevealed(boolean[][] revealed) {
-        this.revealed = revealed;
-    }
 }
+

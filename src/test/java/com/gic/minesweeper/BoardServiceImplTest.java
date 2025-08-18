@@ -1,6 +1,8 @@
 package com.gic.minesweeper;
 
 import com.gic.minesweeper.config.MinesweeperProperties;
+import com.gic.minesweeper.dto.Cell;
+import com.gic.minesweeper.dto.CellState;
 import com.gic.minesweeper.service.imp.BoardServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,9 +28,8 @@ public class BoardServiceImplTest {
         assertEquals(size, boardServiceImpl.getSize());
         assertEquals(mines, boardServiceImpl.getNumOfMines());
         assertNotNull(boardServiceImpl.getMineField());
-        assertNotNull(boardServiceImpl.getRevealed());
-    }
 
+    }
 
 
     @Test
@@ -39,7 +40,7 @@ public class BoardServiceImplTest {
         int countMines = 0;
         for (int i = 0; i < 5; i++) {
             for (int j = 0; j < 5; j++) {
-                if (boardServiceImpl.getMineField()[i][j] == props.getBomb()) {
+                if (boardServiceImpl.getMineField()[i][j].isBomb()) {
                     countMines++;
                 }
             }
@@ -56,7 +57,7 @@ public class BoardServiceImplTest {
         int countEmpty = 0;
         for (int i = 0; i < 5; i++) {
             for (int j = 0; j < 5; j++) {
-                if (boardServiceImpl.getMineField()[i][j] == props.getBlank()) {
+                if (!boardServiceImpl.getMineField()[i][j].isBomb()) {
                     countEmpty++;
                 }
             }
@@ -94,22 +95,91 @@ public class BoardServiceImplTest {
 
     @Test
     void revealCell_onMine_shouldReturnFalse() {
-        boardServiceImpl.initializeBoard(3, 1);
+        int size = 3;
+        int mines = 1;
+        boardServiceImpl.initializeBoard(size, mines);
 
-        ReflectionTestUtils.setField(boardServiceImpl, "mineField", new char[][]{{props.getBomb(), props.getHidden(), props.getHidden()}, {props.getHidden(), props.getHidden(), props.getHidden()}, {props.getHidden(), props.getHidden(), props.getHidden()}});
+        Cell[][] cell = new Cell[size][size];
+
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                cell[i][j] = new Cell(i, j, false);
+            }
+        }
+        cell[0][0].setBomb(true);
+        ReflectionTestUtils.setField(boardServiceImpl, "mineField", cell);
 
         boolean result = boardServiceImpl.revealCell(0, 0);
         assertFalse(result);
-        assertTrue(boardServiceImpl.getRevealed()[0][0]);
+        assertSame(CellState.REVEALED, boardServiceImpl.getMineField()[0][0].getState());
     }
+
+
     @Test
     void revealCell_onSafeCell_shouldReturnTrue() {
-        boardServiceImpl.initializeBoard(3, 1);
 
+        int size = 3;
+        int mines = 1;
+        boardServiceImpl.initializeBoard(size, mines);
+        Cell[][] cell = new Cell[size][size];
 
-        ReflectionTestUtils.setField(boardServiceImpl, "mineField", new char[][]{{props.getBomb(), props.getHidden(), props.getHidden()}, {props.getHidden(), props.getHidden(), props.getHidden()}, {props.getHidden(), props.getHidden(), props.getHidden()}});
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                cell[i][j] = new Cell(i, j, false);
+            }
+        }
+        cell[0][0].setBomb(true);
+
+        ReflectionTestUtils.setField(boardServiceImpl, "mineField", cell);
         boolean result = boardServiceImpl.revealCell(1, 1);
         assertTrue(result);
-        assertTrue(boardServiceImpl.getRevealed()[1][1]);
+        assertSame(CellState.REVEALED, boardServiceImpl.getMineField()[1][1].getState());
+    }
+
+
+    @Test
+    void revealCell_onSafeCell_check_Neighbor_MineValues_1Mine_should_return_1() {
+
+        int size = 3;
+        int mines = 1;
+        boardServiceImpl.initializeBoard(size, mines);
+        Cell[][] cell = new Cell[size][size];
+
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                cell[i][j] = new Cell(i, j, false);
+            }
+        }
+        cell[0][0].setBomb(true);
+
+        ReflectionTestUtils.setField(boardServiceImpl, "mineField", cell);
+        boolean result = boardServiceImpl.revealCell(1, 1);
+        assertTrue(result);
+        assertSame(CellState.REVEALED, boardServiceImpl.getMineField()[1][1].getState());
+
+        assertSame(1, boardServiceImpl.countAdjacentMines(1, 1));
+    }
+
+    @Test
+    void revealCell_onSafeCell_check_Neighbor_MineValues_2Mine_should_return_2() {
+
+        int size = 3;
+        int mines = 1;
+        boardServiceImpl.initializeBoard(size, mines);
+        Cell[][] cell = new Cell[size][size];
+
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                cell[i][j] = new Cell(i, j, false);
+            }
+        }
+        cell[0][0].setBomb(true);
+        cell[0][1].setBomb(true);
+        ReflectionTestUtils.setField(boardServiceImpl, "mineField", cell);
+        boolean result = boardServiceImpl.revealCell(1, 1);
+        assertTrue(result);
+        assertSame(CellState.REVEALED, boardServiceImpl.getMineField()[1][1].getState());
+
+        assertSame(2, boardServiceImpl.countAdjacentMines(1, 1));
     }
 }

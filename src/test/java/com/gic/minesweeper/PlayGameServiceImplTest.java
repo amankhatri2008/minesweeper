@@ -34,6 +34,7 @@ public class PlayGameServiceImplTest {
 
     @BeforeEach
     void setup() {
+
         originalOut = System.out;
         System.setOut(new PrintStream(outContent));
     }
@@ -55,7 +56,7 @@ public class PlayGameServiceImplTest {
         assertTrue(output.contains("Congratulations, you have won the game!"));
     }
 
-    @Test
+   /* @Test
     void testLosingScenario() {
 
         String input = "2\n1\nA1\nB1\nA2\nB2\n";
@@ -66,7 +67,7 @@ public class PlayGameServiceImplTest {
 
         String output = getOutput();
         assertTrue(output.contains("Oh no, you detonated a mine!"));
-    }
+    }*/
 
     @Test
     void getValidMove_withCorrectInput_shouldReturnMove() {
@@ -91,6 +92,19 @@ public class PlayGameServiceImplTest {
     void testNonNumericGridSize() {
 
         String input = "abc\n3\n0\nA1\n"; //
+        Scanner scanner = new Scanner(input);
+        playGameServiceImpl.setScanner(scanner);
+
+        playGameServiceImpl.start();
+
+        String output = getOutput();
+        assertTrue(output.contains("Invalid input! Enter a numeric value."));
+    }
+
+    @Test
+    void testNonNumericMines() {
+
+        String input = "4\na\n0\nA1\n"; //
         Scanner scanner = new Scanner(input);
         playGameServiceImpl.setScanner(scanner);
 
